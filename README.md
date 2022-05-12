@@ -4,15 +4,23 @@
 E-StockMarket Application is a Restful Microservice application, where it allows users to manage the stocks like create, view stock price details and company details
 
 
+### Architecture Diagram
+![img.png](architecture.png)
+
+### Cloudformation Template Design
+![img.png](cloudformation_design.png)
+
 ### Tech Stack
 
 **FrontEnd:** `React`
 
 **Backend:** `Python` `Flask`
 
-**Cloud and Tools:** `AWS` `CloudFormation` `IAM`
+**Cloud Services:** `AWS` `CloudFormation` `IAM` `EC2`
 
 **Database:** `AWS DynamoDB`
+
+**Others:** `Docker` `Nginx` `Docker-Compose`
 
 
 ### To Do
@@ -25,8 +33,8 @@ E-StockMarket Application is a Restful Microservice application, where it allows
 - [x]  Create the AWS DynamoDB using Cloudformation
 - [x]  Deploy and Run the application on AWS EC2 
 - [ ]  Try to optimize few of the operations like scan()
-- [ ]  Store the Logs in the Logstash
-- [ ]  Run Application using Nginx Gateway
+- [ ]  Store and Process the Logs via the ELK.
+- [x]  Run Application using Nginx
 - [ ]  Write the Tests Cases using Pytest
 
 ### API Reference
@@ -109,21 +117,20 @@ E-StockMarket Application is a Restful Microservice application, where it allows
 Clone the project
 
 ```bash
-  git clone git@github.com:Neema-francis/E-Stock-Market.git
+  git clone https://github.com/Neema-francis/E-Stock-Market.git
 ```
 
 Go to the project directory and Setup few things
 
 ```bash
-  cd E-Stock-Market
-  update AWS_SECRET_KEY_ID` & `AWS_SECRET_ACCESS_KEY` in backend/settings.py
-  with that IAM user - who has AWS Administrator access. (Or atleast Cloudformation, DynamoDB and S3)
+  aws configure (to configure the AWS Key)
 ```
 
 ```commandline
 - Open AWS
 - Go to CloudFormation
 - Create the Stack - using template : infrastructure/stack.yaml
+  (Comment Everything from Stack and Leave DynamoDB Uncommented)
 ```
 Start the application using Docker-Compose
 
@@ -138,10 +145,31 @@ Browse the Swagger UI and explore any Endpoints
 ```
 
 
+## AWS Cloud Deployment
+
+Follow the below steps - to deploy/run this project on AWS EC2
+
+```bash
+  1) Login to AWS account
+  2) Create a KEY-PAIR and download it locally
+  3) Update the 'infrastructure/stack.yml' with 'KeyName: <your-key-pair>' in line number: 86
+  4) Go to Cloudformation and Create the stack using template 'infrastructure/stack.yml'
+     This will Create the EC2, Security Group, Dynamo DB Tables, IAM Role
+  5) Logon to EC2 from Command Prompt as 'ssh -i <key-pair> ubuntu@<ec2-public-ip>'
+  6) Run 'git clone https://github.com/Neema-francis/E-Stock-Market.git'
+  7) Run 'cd E-Stock-Market'
+  8) Run 'nano docker-compose.yml'
+     and update the 'SERVER_NAME=0.0.0.0'  with 'SERVER_NAME=<EC2-Public-IP>'
+  9) Run 'sudo docker-compose up'
+  10) Access the Swagger UI from browser as 'http://<EC2-Public-Ip>/apidocs'
+```
+
+
+
 ## Additional Notes
 
 I am using "gunicorn" wsgi server, which not runs on windows. 
-So to run on windows, you need to update the Dockerfile with
+So to run on windows, you need to update the Dockerfile with and remove 'gunicorn' from requirements.txt
 ```
 CMD ["python", "wsgi.py"]
 ```
