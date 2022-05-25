@@ -27,15 +27,18 @@ E-StockMarket Application is a Restful Microservice application, where it allows
 
 - [x]  Create the Backend Endpoints
 - [x]  Test the Backend Endpoints using Postman & Swagger UI
-- [ ]  Create the FrontEnd using React
-- [x]  Dockerize the application
-- [x]  Run the Dockerize application and the Test it
+- [x]  Create the FrontEnd using React
+- [x]  Dockerize the Backend application
+- [ ]  Dockerize the Frontend application
+- [x]  Run the Dockerize Backend application and the Test it
 - [x]  Create the AWS DynamoDB using Cloudformation
-- [x]  Deploy and Run the application on AWS EC2 
+- [x]  Deploy backend and Run the application on AWS EC2
+- [ ]  Deploy frontend and Run the application on AWS EC2 
 - [ ]  Try to optimize few of the operations like scan()
 - [ ]  Store and Process the Logs via the ELK.
 - [x]  Run Application using Nginx
 - [ ]  Write the Tests Cases using Pytest
+- [ ]  Remove Some console warnings of React Frontend Applications.
 
 ### API Reference
 `Access the Swagger UI to test all Endpoints: http://localhost:5000/apidocs/index.html`
@@ -117,7 +120,7 @@ E-StockMarket Application is a Restful Microservice application, where it allows
 Clone the project
 
 ```bash
-  git clone https://github.com/Neema-francis/E-Stock-Market.git
+  git clone git@github.com:Neema-francis/E-Stock-Market.git
 ```
 
 Go to the project directory and Setup few things
@@ -130,18 +133,31 @@ Go to the project directory and Setup few things
 - Open AWS
 - Go to CloudFormation
 - Create the Stack - using template : infrastructure/stack.yaml
-  (Comment Everything from Stack and Leave DynamoDB Uncommented)
 ```
-Start the application using Docker-Compose
+Normally start the Backend application
 
 ```bash
-    docker-compose up
+    python backend/wsgi.py
+```
+
+Normally start the Frontend application
+
+```bash
+    cd frontend
+    npm install
+    npm run start
 ```
 
 Browse the Swagger UI and explore any Endpoints
 
 ```bash
   http://localhost:5000/apidocs/index.html
+```
+
+Browse the Frontend UI
+
+```bash
+  http://localhost:3000/
 ```
 
 
@@ -160,15 +176,17 @@ Follow the below steps - to deploy/run this project on AWS EC2
   7) Run 'cd E-Stock-Market'
   8) Run 'nano docker-compose.yml'
      and update the 'SERVER_NAME=0.0.0.0'  with 'SERVER_NAME=<EC2-Public-IP>'
-  9) Run 'sudo docker-compose up'
-  10) Access the Swagger UI from browser as 'http://<EC2-Public-Ip>/apidocs'
+  9) Run 'nano frontend/src/App.js' and update line number 16 with EC2 Public IP address - instead of 'localhost'
+  10) Run 'sudo docker-compose up'
+  11) Access the Frontend React App UI from browser as 'http://<EC2-Public-Ip>/'
+  12) Access the Backend Swagger UI from browser as 'http://<EC2-Public-Ip>/apidocs'
 ```
 
 
 
 ## Additional Notes
 
-I am using "gunicorn" wsgi server, which not runs on windows. 
+I am using "gunicorn" wsgi server, which not runs on windows directly. 
 So to run on windows, you need to update the Dockerfile with and remove 'gunicorn' from requirements.txt
 ```
 CMD ["python", "wsgi.py"]

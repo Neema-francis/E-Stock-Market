@@ -94,7 +94,7 @@ def get_one_company_data(companycode):
             output = response['Items'][0]
             s_data = get_company_latest_stock_price(companycode)
             output['S_PRICE'] = s_data
-            return output
+            return {"details": output}
         else:
             return {"message": "Company Does not Exists"}
     except Exception as e:
@@ -109,12 +109,18 @@ def get_all_company_data():
             output = {}
             for i in response['Items']:
                 output[i["C_CODE"]] = i["S_PRICE"]
-            return output
+            final_output = []
+            idx = 0
+            for key, val in output.items():
+                final_output.append({"idx": idx, "C_Code": key, "Stock_price": val})
+                idx += 1
+            return {"details": final_output}
         else:
             return {"message": "Stock Prices does not Exists for any Company"}
     except Exception as e:
         logging.error(e)
         logging.error("Error while getting all companies data")
+
 
 def get_company_latest_stock_price(companycode):
     try:
@@ -140,6 +146,7 @@ def get_company_stock_price_list_of_timeframe(companycode, startdate, enddate):
             if response['Count'] > 0:
                 items = response['Items']
                 response = {"max_price": max_price, "min_price": min_price, "average_price": average_price}
+                prices = []
                 for idx, i in enumerate(items):
                     date = int(str(i["S_TIMESTAMP"])[:8])
                     time = int(str(i["S_TIMESTAMP"])[8:14])
@@ -149,11 +156,12 @@ def get_company_stock_price_list_of_timeframe(companycode, startdate, enddate):
                     if min_price > stock_price:
                         min_price = stock_price
                     total = total + stock_price
-                    response[str(idx)] = {"date": date, "time": time, "stock_price": i["S_PRICE"]}
+                    prices.append({"idx": idx, "date": date, "time": time, "stock_price": i["S_PRICE"]})
                 average_price = total / len(items)
                 response["max_price"] = max_price
                 response["min_price"] = min_price
                 response["average_price"] = average_price
+                response["prices"] = prices
                 return response
             else:
                 return {"message": "Stock Price does not exists for this company between provided timestamp"}
